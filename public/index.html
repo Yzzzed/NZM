@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NZM 战绩查询</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div id="bg-layer"></div>
+    <div id="app">
+        <!-- Login View -->
+        <div id="login-view" class="view">
+            <div class="login-container">
+                <h1>逆战：未来近期数据统计</h1>
+                <div class="card login-card">
+                    <h2>账号绑定</h2>
+                    <p class="subtitle">扫描二维码登录，即可自动同步战绩数据</p>
+
+                    <!-- Electron Login Integration -->
+                    <!-- Web QR Login -->
+                    <div id="qr-login-container" style="margin-top:1rem; text-align:center;">
+                        <div id="qr-wrapper"
+                            style="position:relative; display:inline-block; width:150px; height:150px;">
+                            <img id="qr-img" src="" style="width:100%; height:100%; border-radius:8px; display:none;">
+                            <div id="qr-loading"
+                                style="position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#f0f0f0; border-radius:8px; color:#333;">
+                                正在获取...
+                            </div>
+                            <div id="qr-overlay"
+                                style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.9); display:none; flex-direction:column; align-items:center; justify-content:center; cursor:pointer;">
+                                <span style="color:#000; font-weight:bold; margin-bottom:5px;">已失效</span>
+                                <span style="color:#10b981; font-size:0.9rem;">点击刷新</span>
+                            </div>
+                        </div>
+                        <p id="qr-status" style="font-size:0.9rem; color:#aaa; margin-top:1rem;">请使用 手机QQ 扫码登录</p>
+                    </div>
+
+                    <p class="security-tip" style="margin-top: 2rem; color: #666;">
+                        <small>项目已开源，数据存储本地。<br>若账号出现任何问题，与本工具无关。<br>本工具只负责获取《逆战：未来工具箱》小程序的数据。</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats View -->
+        <div id="stats-view" class="view hidden">
+            <header class="navbar">
+                <div class="brand">逆战：未来数据统计</div>
+                <div class="actions">
+                    <span id="user-info"></span>
+                    <button id="refresh-btn">刷新</button>
+                    <button id="logout-btn">解绑</button>
+                </div>
+            </header>
+
+            <main class="container">
+                <div id="loading" class="loading-spinner hidden">
+                    <div class="spinner"></div>
+                    <p>正在同步战绩数据...</p>
+                </div>
+
+                <div id="error-msg" class="error-banner hidden"></div>
+
+                <div id="stats-content" class="hidden">
+                    <div class="info-banner">
+                        ⚠️ 数据说明：官方数据为历史总计（不含机甲）。详细分析基于<b>最近 30 天 / 100 场</b>游戏记录。
+                    </div>
+
+                    <!-- Official Stats Section -->
+                    <h2 class="section-title" style="margin-top: 0;">官方历史数据 <small
+                            style="font-size:0.6em;color:#888;font-weight:normal">（不包含机甲/PVP）</small></h2>
+                    <section class="summary-section official-stats">
+                        <div class="stat-card summary-card">
+                            <h3>历史总场次</h3>
+                            <div class="value" id="off-total-games">-</div>
+                        </div>
+                        <div class="stat-card summary-card">
+                            <h3>历史总时长</h3>
+                            <div class="value" id="off-total-time">-</div>
+                        </div>
+                    </section>
+
+                    <!-- Recent Stats Section -->
+                    <h2 class="section-title">近期战绩统计 <small
+                            style="font-size:0.6em;color:#888;font-weight:normal">（最近30天/100场）</small></h2>
+                    <section class="summary-section recent-stats">
+                        <div class="stat-card summary-card">
+                            <h3>近期场次</h3>
+                            <div class="value" id="recent-games">-</div>
+                        </div>
+                        <div class="stat-card summary-card">
+                            <h3>近期胜率</h3>
+                            <div class="value" id="recent-win-rate">-</div>
+                        </div>
+                        <div class="stat-card summary-card">
+                            <h3>场均伤害</h3>
+                            <div class="value" id="recent-avg-damage">-</div>
+                        </div>
+                    </section>
+
+                    <!-- Modes Section -->
+                    <section>
+                        <h2 class="section-title">模式统计</h2>
+                        <div id="mode-stats" class="grid-container">
+                            <!-- JS Generated -->
+                        </div>
+                    </section>
+
+                    <!-- Maps Section -->
+                    <section>
+                        <div class="section-header">
+                            <h2 class="section-title">地图详情</h2>
+
+                        </div>
+                        <div id="map-stats" class="grid-container map-grid">
+                            <!-- JS Generated -->
+                        </div>
+                    </section>
+
+                    <!-- Match History Section -->
+                    <section>
+                        <h2 class="section-title">对局记录</h2>
+                        <div class="mode-tabs">
+                            <button class="mode-tab active" data-mode="all">全部</button>
+                            <button class="mode-tab" data-mode="猎场">猎场</button>
+                            <button class="mode-tab" data-mode="塔防">塔防</button>
+                            <button class="mode-tab" data-mode="时空追猎">追猎</button>
+                        </div>
+                        <div id="match-history" class="match-list">
+                            <!-- JS Generated -->
+                        </div>
+                        <div class="pagination">
+                            <button id="prev-page" disabled>&lt; 上一页</button>
+                            <span id="page-info">第 1 页</span>
+                            <button id="next-page" disabled>下一页 &gt;</button>
+                        </div>
+                    </section>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script src="app.js?v=2"></script>
+
+    <!-- GitHub Link -->
+    <a href="https://github.com/HaMan412/NZM" target="_blank" class="github-fab" title="查看源码">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg" alt="GitHub">
+        <span>开源仓库</span>
+    </a>
+</body>
+
+</html>
