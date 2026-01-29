@@ -1,3 +1,5 @@
+// 111231
+
 import { getPtqrToken } from './utils.js';
 
 export async function handleAuthQR(request) {
