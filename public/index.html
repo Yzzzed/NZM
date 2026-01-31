@@ -7,6 +7,9 @@
     <title>NZM 战绩查询</title>
     <link rel="stylesheet" href="style.css?v=5">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Umami Analytics -->
+    <script defer src="http://154.222.30.217:2345/script.js"
+        data-website-id="f4036759-b32e-4ebb-b0d8-3cbb1208fab3"></script>
 </head>
 
 <body>
@@ -41,6 +44,18 @@
                                 </div>
                             </div>
                             <p id="qr-status" style="font-size:0.9rem; color:#aaa; margin-top:1rem;">请使用 手机QQ 扫码登录</p>
+
+                            <!-- 扫码异常提示 -->
+                            <div class="qr-tips"
+                                style="margin-top:1.2rem; padding:0.8rem; background:rgba(255,255,255,0.05); border-radius:8px; text-align:left; font-size:0.85rem; line-height:1.6; color:#94a3b8;">
+                                <p style="margin:0 0 0.5rem 0; color:#f59e0b; font-weight:bold;">扫码出现设备网络异常？</p>
+                                <ol style="margin:0; padding-left:1.2rem;">
+                                    <li>优先尝试<strong style="color:#10b981;">多次刷新网页</strong>后重新扫码</li>
+                                    <li>将手机 WiFi 关闭，<strong style="color:#10b981;">使用流量</strong>扫码登录</li>
+                                    <li>若仍无法解决，可点击右下角<strong style="color:#60a5fa;">「开源仓库」</strong>获取源码本地部署</li>
+                                    <li>或加入 QQ 群获取一键部署的本地包：<strong style="color:#f472b6;">1004721478</strong></li>
+                                </ol>
+                            </div>
                         </div>
                     </div>
 
