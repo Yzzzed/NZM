@@ -920,7 +920,7 @@ function initSidebar() {
         if (sidebar.offsetWidth === 0 || sidebar.offsetHeight === 0) {
             return;
         }
-        
+
         // Get the original saved position
         const savedPos = localStorage.getItem('sidebar_position');
         let targetLeft, targetTop;
@@ -961,8 +961,111 @@ function initSidebar() {
     }
 }
 
-// Initialize sidebar after DOM ready
-document.addEventListener('DOMContentLoaded', initSidebar);
+// --- Donate Sidebar Toggle & Drag (PC Only) ---
+function initDonateSidebar() {
+    const sidebar = document.getElementById('donate-sidebar');
+    const toggleBtn = document.getElementById('donate-toggle');
+    const dragHandle = document.getElementById('donate-drag-handle');
+
+    if (!sidebar || !toggleBtn) return;
+
+    // Restore collapsed state
+    if (localStorage.getItem('donate_collapsed') === 'true') {
+        sidebar.classList.add('collapsed');
+    }
+
+    // Restore position
+    const savedPos = localStorage.getItem('donate_position');
+    if (savedPos) {
+        try {
+            const pos = JSON.parse(savedPos);
+            sidebar.style.left = pos.left + 'px';
+            sidebar.style.top = pos.top + 'px';
+        } catch (e) { }
+    }
+
+    // Toggle
+    toggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        sidebar.classList.add('collapsed');
+        localStorage.setItem('donate_collapsed', 'true');
+    });
+
+    let justDragged = false;
+    sidebar.addEventListener('click', (e) => {
+        if (justDragged) { justDragged = false; return; }
+        if (sidebar.classList.contains('collapsed')) {
+            sidebar.classList.remove('collapsed');
+            localStorage.setItem('donate_collapsed', 'false');
+        }
+    });
+
+    // Drag
+    let isDragging = false, hasMoved = false, startX, startY, offsetX, offsetY;
+
+    const startDrag = (e) => {
+        if (!sidebar.classList.contains('collapsed') && !e.target.closest('#donate-drag-handle')) return;
+        if (e.target.closest('#donate-toggle')) return;
+        isDragging = true; hasMoved = false;
+        sidebar.classList.add('dragging');
+        const rect = sidebar.getBoundingClientRect();
+        const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+        startX = clientX; startY = clientY;
+        offsetX = clientX - rect.left; offsetY = clientY - rect.top;
+        e.preventDefault();
+    };
+
+    const doDrag = (e) => {
+        if (!isDragging) return;
+        const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+        if (Math.abs(clientX - startX) > 3 || Math.abs(clientY - startY) > 3) hasMoved = true;
+        let newLeft = Math.max(0, Math.min(clientX - offsetX, window.innerWidth - sidebar.offsetWidth));
+        let newTop = Math.max(0, Math.min(clientY - offsetY, window.innerHeight - sidebar.offsetHeight));
+        sidebar.style.left = newLeft + 'px';
+        sidebar.style.top = newTop + 'px';
+        e.preventDefault();
+    };
+
+    const endDrag = () => {
+        if (!isDragging) return;
+        isDragging = false;
+        sidebar.classList.remove('dragging');
+        if (hasMoved) { justDragged = true; setTimeout(() => justDragged = false, 100); }
+        const rect = sidebar.getBoundingClientRect();
+        localStorage.setItem('donate_position', JSON.stringify({ left: rect.left, top: rect.top }));
+    };
+
+    dragHandle.addEventListener('mousedown', startDrag);
+    sidebar.addEventListener('mousedown', (e) => { if (sidebar.classList.contains('collapsed')) startDrag(e); });
+    document.addEventListener('mousemove', doDrag);
+    document.addEventListener('mouseup', endDrag);
+    dragHandle.addEventListener('touchstart', startDrag, { passive: false });
+    sidebar.addEventListener('touchstart', (e) => { if (sidebar.classList.contains('collapsed')) startDrag(e); }, { passive: false });
+    document.addEventListener('touchmove', doDrag, { passive: false });
+    document.addEventListener('touchend', endDrag);
+
+    // Keep in bounds on resize
+    window.addEventListener('resize', () => {
+        if (sidebar.offsetWidth === 0) return;
+        const pos = localStorage.getItem('donate_position');
+        if (!pos) return;
+        try {
+            const { left, top } = JSON.parse(pos);
+            const maxLeft = window.innerWidth - sidebar.offsetWidth;
+            const maxTop = window.innerHeight - sidebar.offsetHeight;
+            sidebar.style.left = Math.max(0, Math.min(left, maxLeft)) + 'px';
+            sidebar.style.top = Math.max(0, Math.min(top, maxTop)) + 'px';
+        } catch (e) { }
+    });
+}
+
+// Initialize sidebars after DOM ready
+document.addEventListener('DOMContentLoaded', () => {
+    initSidebar();
+    initDonateSidebar();
+});
 
 init();
 

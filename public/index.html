@@ -210,6 +210,15 @@
                                     <button id="next-page" disabled>下一页 &gt;</button>
                                 </div>
                             </section>
+
+                            <!-- Donate Card Section -->
+                            <section class="donate-section">
+                                <div class="donate-card">
+                                    <h2 class="donate-title">支持作者</h2>
+                                    <img src="images/donate-wechat.png" alt="微信赞赏码" class="donate-qr-large">
+                                    <p class="donate-text">维护不易，若有帮助到你，可以在条件允许的情况下请作者喝杯咖啡~ 我会在官方小程序优化前一直维护哒~</p>
+                                </div>
+                            </section>
                         </div>
                     </div><!-- /.stats-main -->
 
@@ -223,6 +232,20 @@
                         </div>
                         <div id="fragment-list" class="sidebar-content">
                             <p style="color:#888;font-size:0.9rem;">加载中...</p>
+                        </div>
+                    </aside>
+
+                    <!-- Donate Floating Sidebar (PC Only) -->
+                    <aside id="donate-sidebar" class="donate-sidebar">
+                        <div class="sidebar-header" id="donate-drag-handle">
+                            <h3>支持作者 <span class="sidebar-hint">点击右上角可隐藏</span></h3>
+                            <button id="donate-toggle" class="sidebar-toggle-btn" title="缩小为浮动球">
+                                <span class="toggle-icon-minimize"></span>
+                            </button>
+                        </div>
+                        <div class="sidebar-content donate-content">
+                            <img src="images/donate-wechat.png" alt="微信赞赏码" class="donate-qr">
+                            <p class="donate-desc">维护不易，若有帮助到你，可以在条件允许的情况下请作者喝杯咖啡，我会在官方小程序优化前一直维护哒~</p>
                         </div>
                     </aside>
                 </div><!-- /.stats-layout -->
