@@ -1,12 +1,14 @@
 :root {
-    --bg-color: #0f172a;
-    --card-bg: #1e293b;
-    --text-primary: #f1f5f9;
-    --text-secondary: #94a3b8;
-    --accent: #3b82f6;
-    --accent-hover: #2563eb;
-    --success: #10b981;
-    --danger: #ef4444;
+    --bg-color: #1a1410;
+    --card-bg: #2a1f18;
+    --text-primary: #f5e6d3;
+    --text-secondary: #a89a8c;
+    --accent: #d4a84b;
+    --accent-hover: #c49a3d;
+    --accent-rgb: 212, 168, 75;
+    --success: #8bc34a;
+    --danger: #c45c4b;
+    --gold-gradient: linear-gradient(135deg, #d4a84b 0%, #c49a3d 50%, #a67c2e 100%);
     --font-main: 'Roboto', sans-serif;
 }
 
@@ -31,12 +33,40 @@ body {
     width: 100%;
     height: 100%;
     z-index: -1;
-    background-image: url('images/maps-304.png');
+    background-image: url('https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-17.png');
     /* Default bg */
     background-size: cover;
     background-position: center;
-    filter: blur(20px) brightness(0.4);
+    filter: blur(3px) brightness(0.65);
     transition: background-image 0.5s ease;
+}
+
+/* Crack overlay effect */
+#bg-layer::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background:
+        repeating-linear-gradient(45deg,
+            transparent,
+            transparent 100px,
+            rgba(0, 0, 0, 0.03) 100px,
+            rgba(0, 0, 0, 0.03) 101px),
+        repeating-linear-gradient(-45deg,
+            transparent,
+            transparent 150px,
+            rgba(0, 0, 0, 0.02) 150px,
+            rgba(0, 0, 0, 0.02) 151px),
+        repeating-linear-gradient(90deg,
+            transparent,
+            transparent 200px,
+            rgba(212, 168, 75, 0.02) 200px,
+            rgba(212, 168, 75, 0.02) 201px);
+    pointer-events: none;
+    opacity: 0.8;
 }
 
 .view.hidden {
@@ -56,14 +86,37 @@ body {
 }
 
 .login-card {
-    background: rgba(30, 41, 59, 0.9);
+    background: rgba(42, 31, 24, 0.9);
+
     padding: 2rem;
     border-radius: 1rem;
     width: 100%;
     max-width: 400px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(10px);
-    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2rem;
+    gap: 1rem;
+    width: 100%;
+}
+
+.login-header h1 {
+    margin: 0;
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    white-space: nowrap;
+}
+
+.login-logo {
+    height: 80px;
+    width: auto;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+    display: block;
 }
 
 .login-card textarea {
@@ -107,17 +160,73 @@ button:hover {
     top: 0;
     z-index: 100;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    /* Enable relative positioning for absolute children */
+    position: relative;
+    /* Ensure flex context for .actions */
+    display: flex;
+}
+
+.nav-center-group {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    height: 100%;
 }
 
 .brand {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #ef4444;
-    /* Red Title */
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    background: linear-gradient(135deg, #d4a84b 0%, #f0d590 50%, #c49a3d 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    /* Golden Title */
+    text-shadow: none;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+
+
+.nav-season-logo {
+    position: absolute;
+    right: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 64px;
+    width: auto;
+    margin-right: 1rem;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    /* Prevent shrinking */
+    flex-shrink: 0;
+}
+
+@media (max-width: 900px) {
+    .nav-center-group {
+        position: static;
+        transform: none;
+        flex: 1;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .brand {
+        display: none;
+        /* Hide brand specific text if needed or just shrink */
+    }
+
+    .nav-season-logo {
+        position: static;
+        transform: none;
+        height: 40px;
+        margin-right: 0.5rem;
+    }
 }
 
 .actions {
+    margin-left: auto;
+    /* Push to right */
     display: flex;
     gap: 1rem;
     align-items: center;
@@ -201,8 +310,8 @@ button:hover {
     display: flex;
     align-items: center;
     gap: 1rem;
-    background: rgba(59, 130, 246, 0.1);
-    border: 1px solid rgba(59, 130, 246, 0.3);
+    background: rgba(212, 168, 75, 0.1);
+    border: 1px solid rgba(212, 168, 75, 0.3);
     border-radius: 12px;
     padding: 1rem 1.25rem;
     margin-bottom: 1.5rem;
@@ -345,7 +454,7 @@ button:hover {
 }
 
 .info-banner {
-    background: rgba(59, 130, 246, 0.1);
+    background: rgba(212, 168, 75, 0.1);
     border-left: 4px solid var(--accent);
     padding: 1rem;
     margin-bottom: 2rem;
@@ -1075,16 +1184,120 @@ button:hover {
     z-index: 100;
     max-height: calc(100vh - 100px);
     overflow-y: auto;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Sidebar Header with drag handle */
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: move;
+    user-select: none;
+    margin-bottom: 0;
 }
 
 .progress-sidebar h3 {
     font-size: 1rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0;
     color: var(--text-primary);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    padding-bottom: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.5px;
+}
+
+.sidebar-content {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+/* Toggle Button */
+.sidebar-toggle-btn {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.sidebar-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Minimize icon (two arrows pointing inward) */
+.toggle-icon-minimize {
+    width: 14px;
+    height: 14px;
+    position: relative;
+}
+
+.toggle-icon-minimize::before,
+.toggle-icon-minimize::after {
+    content: '';
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border: solid #fff;
+    border-width: 2px 2px 0 0;
+}
+
+.toggle-icon-minimize::before {
+    top: 0;
+    right: 0;
+    transform: rotate(45deg);
+}
+
+.toggle-icon-minimize::after {
+    bottom: 0;
+    left: 0;
+    transform: rotate(-135deg);
+}
+
+/* Collapsed State - Small floating ball */
+.progress-sidebar.collapsed {
+    width: 50px;
+    height: 50px;
+    padding: 0;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(59, 130, 246, 0.8);
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+}
+
+.progress-sidebar.collapsed:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 24px rgba(59, 130, 246, 0.5);
+}
+
+.progress-sidebar.collapsed .sidebar-header,
+.progress-sidebar.collapsed .sidebar-content {
+    display: none;
+}
+
+/* Collapsed ball icon */
+.progress-sidebar.collapsed::after {
+    content: '';
+    width: 20px;
+    height: 20px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14h-4v-2h4v2zm0-4h-4v-2h4v2zm0-4h-4V7h4v2z'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+/* Dragging state - disable transition for instant mouse follow */
+.progress-sidebar.dragging {
+    opacity: 0.9;
+    cursor: grabbing;
+    transition: none !important;
 }
 
 .progress-item {
@@ -1288,8 +1501,15 @@ button:hover {
 
 /* ============ Responsive for new layout ============ */
 @media (max-width: 1200px) {
-    .progress-sidebar {
+
+    /* Hide expanded sidebar on small screens, but keep collapsed ball visible */
+    .progress-sidebar:not(.collapsed) {
         display: none;
+    }
+
+    /* Ensure collapsed ball stays visible */
+    .progress-sidebar.collapsed {
+        display: flex;
     }
 }
 
@@ -1308,4 +1528,372 @@ button:hover {
     .collection-grid {
         grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
     }
+}
+
+/* ============ Donate Card Section (Bottom Center - Mobile Only) ============ */
+.donate-section {
+    margin-top: 3rem;
+    margin-bottom: 2rem;
+    display: none;
+    /* Hidden on PC by default */
+    justify-content: center;
+}
+
+.donate-card {
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 16px;
+    padding: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+}
+
+.donate-title {
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin: 0 0 1.5rem 0;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.donate-qr-large {
+    width: 100%;
+    max-width: 320px;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+}
+
+.donate-text {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* ============ Donate Floating Sidebar (PC Only) ============ */
+.donate-sidebar {
+    position: fixed;
+    left: 20px;
+    top: 80px;
+    width: 360px;
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    z-index: 100;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.donate-sidebar h3 {
+    font-size: 1.3rem;
+    margin-bottom: 0;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.donate-content {
+    text-align: center;
+}
+
+.donate-qr {
+    width: 100%;
+    max-width: 320px;
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+}
+
+.donate-desc {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0;
+}
+
+.sidebar-hint {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    font-weight: 400;
+    opacity: 0.7;
+}
+
+/* Collapsed State for Donate Sidebar */
+.donate-sidebar.collapsed {
+    width: 50px;
+    height: 50px;
+    padding: 0;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(16, 185, 129, 0.8);
+    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+}
+
+.donate-sidebar.collapsed:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 24px rgba(16, 185, 129, 0.5);
+}
+
+.donate-sidebar.collapsed .sidebar-header,
+.donate-sidebar.collapsed .sidebar-content {
+    display: none;
+}
+
+.donate-sidebar.collapsed::after {
+    content: '';
+    width: 22px;
+    height: 22px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.donate-sidebar.dragging {
+    opacity: 0.9;
+    cursor: grabbing;
+    transition: none !important;
+}
+
+/* ============ Responsive: Show/Hide based on screen size ============ */
+/* Medium screens: collapse sidebar by default */
+@media (max-width: 1200px) {
+    .donate-sidebar:not(.collapsed) {
+        display: none;
+    }
+
+    .donate-sidebar.collapsed {
+        display: flex;
+    }
+}
+
+/* Mobile: Hide floating sidebar, show bottom card */
+@media (max-width: 768px) {
+
+    .donate-sidebar,
+    .donate-sidebar.collapsed {
+        display: none !important;
+    }
+
+    .donate-section {
+        display: flex;
+    }
+
+    .donate-card {
+        padding: 1.5rem;
+        margin: 0 1rem;
+    }
+
+    .donate-qr-large {
+        max-width: 280px;
+    }
+
+    .donate-title {
+        font-size: 1.25rem;
+    }
+}
+
+/* ============ Equipment Scheme Display Styles ============ */
+
+.equipment-section {
+    margin-top: 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 0.75rem;
+}
+
+.equipment-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    padding: 0.5rem 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+    transition: all 0.2s;
+}
+
+.equipment-header:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.equipment-header-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--accent);
+}
+
+.equipment-toggle-icon {
+    transition: transform 0.2s;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+.equipment-section.expanded .equipment-toggle-icon {
+    transform: rotate(180deg);
+}
+
+.equipment-content {
+    display: none;
+    animation: slideDown 0.3s ease-out;
+}
+
+.equipment-section.expanded .equipment-content {
+    display: block;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.equipment-grid {
+    display: grid;
+    /* Reverted to compact size as requested */
+    grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
+    gap: 0.5rem;
+}
+
+.weapon-card {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 0.5rem;
+    padding: 0.4rem;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.2s;
+}
+
+.weapon-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Quality borders */
+.weapon-quality-4 {
+    border-color: #d4a84b;
+    box-shadow: 0 0 8px rgba(212, 168, 75, 0.25);
+}
+
+.weapon-quality-3 {
+    border-color: #a855f7;
+    box-shadow: 0 0 8px rgba(168, 85, 247, 0.25);
+}
+
+.weapon-quality-2 {
+    border-color: #3b82f6;
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.25);
+}
+
+.weapon-quality-1 {
+    border-color: #10b981;
+}
+
+.weapon-image-container {
+    position: relative;
+    width: 100%;
+    /* Keep 50% for normal weapon shape */
+    padding-top: 50%;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 0.25rem;
+    overflow: hidden;
+    margin-bottom: 0.4rem;
+}
+
+.weapon-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 0.1rem;
+}
+
+.weapon-quality-badge {
+    position: absolute;
+    top: 0.15rem;
+    right: 0.15rem;
+    padding: 0.1rem 0.3rem;
+    border-radius: 0.2rem;
+    font-size: 0.6rem;
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.badge-legendary {
+    background: linear-gradient(135deg, #d4a84b, #c49a3d);
+    color: white;
+}
+
+.badge-epic {
+    background: linear-gradient(135deg, #a855f7, #9333ea);
+    color: white;
+}
+
+.badge-rare {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+}
+
+.badge-common {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+}
+
+.weapon-name {
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-align: center;
+    margin-bottom: 0.35rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-primary);
+}
+
+.plugin-grid {
+    display: grid;
+    /* Changed to 2 columns to force icons to be twice as large within the small card */
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.25rem;
+}
+
+.plugin-icon {
+    position: relative;
+    width: 100%;
+    padding-top: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 0.2rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+}
+
+.plugin-icon img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    /* Removed padding to maximize icon size */
+    padding: 0;
+}
+
+.plugin-icon:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 6px rgba(212, 168, 75, 0.4);
 }

@@ -305,9 +305,9 @@ const DIFF_NAME = { '0': '默认', '1': '引导', '2': '普通', '3': '困难', 
 
 function getModeByMapId(mapId) {
     const id = parseInt(mapId);
-    if ([12, 14, 21, 30, 112, 114, 115].includes(id)) return '僵尸猎场';
-    if ([300, 304, 308].includes(id)) return '塔防战'; /* Also update Tower Defense just in case */
-    if ([321, 322, 324].includes(id)) return '时空追猎';
+    if ([12, 14, 16, 17, 21, 30, 112, 114, 115].includes(id)) return '僵尸猎场';
+    if ([300, 304, 306, 308].includes(id)) return '塔防战';
+    if ([321, 322, 323, 324].includes(id)) return '时空追猎';
     if (id >= 1000) return '机甲战';
     return '未知';
 }
@@ -358,6 +358,10 @@ function renderStats(data) {
             if (m.includes('复活节')) img = 'https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-12.png';
             if (m.includes('风暴')) img = 'https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-1000.png';
             if (m.includes('根除')) img = 'https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-321.png';
+            if (m.includes('昆仑神宫')) img = 'https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-16.png';
+            if (m.includes('精绝古城')) img = 'https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-17.png';
+            if (m.includes('联盟大厦')) img = 'https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-306.png';
+            if (m.includes('猎杀南十字')) img = 'https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-323.png';
         }
 
         const rate = total > 0 ? ((win / total) * 100).toFixed(0) : 0;
@@ -436,6 +440,10 @@ function renderMatchHistory(gameList) {
             else if (mapName.includes('复活节')) img = 'https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-12.png';
             else if (mapName.includes('风暴')) img = 'https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-1000.png';
             else if (mapName.includes('根除')) img = 'https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-321.png';
+            else if (mapName.includes('昆仑神宫')) img = 'https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-16.png';
+            else if (mapName.includes('精绝古城')) img = 'https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-17.png';
+            else if (mapName.includes('联盟大厦')) img = 'https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-306.png';
+            else if (mapName.includes('猎杀南十字')) img = 'https://nzm.playerhub.qq.com/playerhub/60106/maps/maps-323.png';
         }
 
         // Format Date: "01-25 15:13"
@@ -513,6 +521,71 @@ function formatNumber(num) {
     return (num || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
+function getQualityLabel(quality) {
+    switch (quality) {
+        case 4: return '传说';
+        case 3: return '史诗';
+        case 2: return '稀有';
+        default: return '普通';
+    }
+}
+
+function renderEquipmentScheme(equipmentScheme, playerId) {
+    if (!equipmentScheme || equipmentScheme.length === 0) return '';
+
+    const weaponsHtml = equipmentScheme.map(weapon => {
+        const weaponName = decodeURIComponent(weapon.weaponName || '');
+        const quality = weapon.quality || 1;
+        const qualityClass = `weapon-quality-${quality}`;
+        const qualityLabel = getQualityLabel(quality);
+        const qualityBadgeClass = quality === 4 ? 'badge-legendary' : quality === 3 ? 'badge-epic' : quality === 2 ? 'badge-rare' : 'badge-common';
+
+        // Render plugins
+        const pluginsHtml = (weapon.commonItems || []).map(plugin => {
+            const pluginName = decodeURIComponent(plugin.itemName || '');
+            return `
+                <div class="plugin-icon" title="${pluginName}">
+                    <img src="${plugin.pic}" alt="${pluginName}" loading="lazy" onerror="this.style.opacity='0.3'">
+                </div>
+            `;
+        }).join('');
+
+        return `
+            <div class="weapon-card ${qualityClass}">
+                <div class="weapon-image-container">
+                    <img src="${weapon.pic}" alt="${weaponName}" class="weapon-image" loading="lazy" onerror="this.style.opacity='0.3'">
+                    <span class="weapon-quality-badge ${qualityBadgeClass}">${qualityLabel}</span>
+                </div>
+                <div class="weapon-name" title="${weaponName}">${weaponName}</div>
+                <div class="plugin-grid">
+                    ${pluginsHtml}
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    return `
+        <div class="equipment-section" id="equipment-${playerId}">
+            <div class="equipment-header" onclick="toggleEquipment('${playerId}')">
+                <span class="equipment-header-title">本局配装</span>
+                <span class="equipment-toggle-icon">▼</span>
+            </div>
+            <div class="equipment-content">
+                <div class="equipment-grid">
+                    ${weaponsHtml}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function toggleEquipment(playerId) {
+    const section = document.getElementById(`equipment-${playerId}`);
+    if (section) {
+        section.classList.toggle('expanded');
+    }
+}
+
 function renderMatchDetail(data, container, mode) {
     const self = data.loginUserDetail;
     const teammates = (data.list || []).filter(p => p.nickname !== self.nickname);
@@ -522,51 +595,59 @@ function renderMatchDetail(data, container, mode) {
     const showExtra = mode !== '塔防战' && mode !== '时空追猎';
 
     let html = '<div class="player-list">';
-    teammates.forEach(p => {
+    teammates.forEach((p, idx) => {
         const info = p.baseDetail;
         const hunt = p.huntingDetails || {};
-        const hasExtra = showExtra && (hunt.DamageTotalOnBoss > 0 || hunt.DamageTotalOnMobs > 0 || hunt.totalCoin > 0);
+        const hasExtra = showExtra && ((hunt.damageTotalOnBoss || hunt.DamageTotalOnBoss) > 0 || (hunt.damageTotalOnMobs || hunt.DamageTotalOnMobs) > 0 || hunt.totalCoin > 0);
+        const equipmentHtml = renderEquipmentScheme(p.equipmentScheme, `teammate-${idx}`);
         html += `
-            <div class="player-item">
-                <img src="${decodeURIComponent(p.avatar)}" class="player-avatar" onerror="this.src='images/maps-304.png'">
-                <div class="player-info">
-                    <div class="player-name">${decodeURIComponent(p.nickname)}</div>
-                    <div class="player-stats-grid">
-                        <div class="stat-group">
-                            <span>积分: ${formatNumber(info.iScore)}</span>
-                            <span>击杀: ${info.iKills}</span>
-                            <span>死亡: ${info.iDeaths}</span>
+            <div class="player-item" style="display:block;">
+                <div style="display:flex; align-items:center; gap:0.75rem;">
+                    <img src="${decodeURIComponent(p.avatar)}" class="player-avatar" onerror="this.src='images/maps-304.png'">
+                    <div class="player-info">
+                        <div class="player-name">${decodeURIComponent(p.nickname)}</div>
+                        <div class="player-stats-grid">
+                            <div class="stat-group">
+                                <span>积分: ${formatNumber(info.iScore)}</span>
+                                <span>击杀: ${info.iKills}</span>
+                                <span>死亡: ${info.iDeaths}</span>
+                            </div>
+                            ${hasExtra ? `
+                            <div class="stat-group extra">
+                                <span>Boss: ${formatNumber(hunt.damageTotalOnBoss || hunt.DamageTotalOnBoss || 0)}</span>
+                                <span>小怪: ${formatNumber(hunt.damageTotalOnMobs || hunt.DamageTotalOnMobs || 0)}</span>
+                                <span>金币: ${formatNumber(hunt.totalCoin || 0)}</span>
+                            </div>` : ''}
                         </div>
-                        ${hasExtra ? `
-                        <div class="stat-group extra">
-                            <span>Boss: ${formatNumber(hunt.DamageTotalOnBoss || 0)}</span>
-                            <span>小怪: ${formatNumber(hunt.DamageTotalOnMobs || 0)}</span>
-                            <span>金币: ${formatNumber(hunt.totalCoin || 0)}</span>
-                        </div>` : ''}
                     </div>
                 </div>
+                ${equipmentHtml}
             </div>`;
     });
     html += '</div>';
 
     const selfInfo = self.baseDetail;
     const selfHunt = self.huntingDetails || {};
+    const selfEquipmentHtml = renderEquipmentScheme(self.equipmentScheme, 'self');
     html += `
-        <div class="user-detail-row" style="margin-top:1rem; background:rgba(255,255,255,0.05); padding:1rem; border-radius:0.5rem; display:flex; gap:1rem; align-items:center;">
-             <div style="flex-shrink:0; text-align:center;">
-                <img src="${decodeURIComponent(self.avatar)}" style="width:50px; height:50px; border-radius:50%; border:2px solid var(--accent);">
-                <div style="font-weight:bold; margin-top:0.25rem;">${decodeURIComponent(self.nickname)}</div>
+        <div class="user-detail-row" style="margin-top:1rem; background:rgba(255,255,255,0.05); padding:1rem; border-radius:0.5rem;">
+            <div style="display:flex; gap:1rem; align-items:center; margin-bottom:${selfEquipmentHtml ? '1rem' : '0'};">
+                <div style="flex-shrink:0; text-align:center;">
+                    <img src="${decodeURIComponent(self.avatar)}" style="width:50px; height:50px; border-radius:50%; border:2px solid var(--accent);">
+                    <div style="font-weight:bold; margin-top:0.25rem;">${decodeURIComponent(self.nickname)}</div>
+                </div>
+                <div class="detail-grid" style="flex-grow:1; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));">
+                    <div class="detail-item"><div class="label">积分</div><div class="value">${formatNumber(selfInfo.iScore)}</div></div>
+                    <div class="detail-item"><div class="label">击杀</div><div class="value">${selfInfo.iKills}</div></div>
+                    <div class="detail-item"><div class="label">死亡</div><div class="value">${selfInfo.iDeaths}</div></div>
+                    ${showExtra ? `
+                    <div class="detail-item"><div class="label">Boss伤害</div><div class="value">${formatNumber(selfHunt.damageTotalOnBoss || selfHunt.DamageTotalOnBoss || 0)}</div></div>
+                    <div class="detail-item"><div class="label">小怪伤害</div><div class="value">${formatNumber(selfHunt.damageTotalOnMobs || selfHunt.DamageTotalOnMobs || 0)}</div></div>
+                    <div class="detail-item"><div class="label">金币</div><div class="value">${formatNumber(selfHunt.totalCoin || 0)}</div></div>
+                    ` : ''}
+                </div>
             </div>
-            <div class="detail-grid" style="flex-grow:1; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));">
-                <div class="detail-item"><div class="label">积分</div><div class="value">${formatNumber(selfInfo.iScore)}</div></div>
-                <div class="detail-item"><div class="label">击杀</div><div class="value">${selfInfo.iKills}</div></div>
-                <div class="detail-item"><div class="label">死亡</div><div class="value">${selfInfo.iDeaths}</div></div>
-                ${showExtra ? `
-                <div class="detail-item"><div class="label">Boss伤害</div><div class="value">${formatNumber(selfHunt.DamageTotalOnBoss || 0)}</div></div>
-                <div class="detail-item"><div class="label">小怪伤害</div><div class="value">${formatNumber(selfHunt.DamageTotalOnMobs || 0)}</div></div>
-                <div class="detail-item"><div class="label">金币</div><div class="value">${formatNumber(selfHunt.totalCoin || 0)}</div></div>
-                ` : ''}
-            </div>
+            ${selfEquipmentHtml}
         </div>`;
 
     container.innerHTML = html;
@@ -761,6 +842,311 @@ async function loadFragments() {
         console.error('Failed to load fragments:', e);
     }
 }
+
+// --- Sidebar Toggle & Drag ---
+function initSidebar() {
+    const sidebar = document.getElementById('progress-sidebar');
+    const toggleBtn = document.getElementById('sidebar-toggle');
+    const dragHandle = document.getElementById('sidebar-drag-handle');
+
+    if (!sidebar || !toggleBtn) return;
+
+    // Restore collapsed state from localStorage
+    const isCollapsed = localStorage.getItem('sidebar_collapsed') === 'true';
+    if (isCollapsed) {
+        sidebar.classList.add('collapsed');
+    }
+
+    // Restore position from localStorage
+    const savedPos = localStorage.getItem('sidebar_position');
+    if (savedPos) {
+        try {
+            const pos = JSON.parse(savedPos);
+            sidebar.style.right = 'auto';
+            sidebar.style.top = 'auto';
+            sidebar.style.left = pos.left + 'px';
+            sidebar.style.top = pos.top + 'px';
+        } catch (e) { }
+    }
+
+    // Toggle functionality
+    toggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        sidebar.classList.add('collapsed');
+        localStorage.setItem('sidebar_collapsed', 'true');
+    });
+
+    // Track if we just finished dragging to prevent click-to-expand
+    let justDragged = false;
+
+    // Click collapsed ball to expand (only if not dragging)
+    sidebar.addEventListener('click', (e) => {
+        if (justDragged) {
+            justDragged = false;
+            return;
+        }
+        if (sidebar.classList.contains('collapsed')) {
+            sidebar.classList.remove('collapsed');
+            localStorage.setItem('sidebar_collapsed', 'false');
+        }
+    });
+
+    // Drag functionality
+    let isDragging = false;
+    let hasMoved = false;
+    let startX, startY, offsetX, offsetY;
+
+    const startDrag = (e) => {
+        // Only drag from header when expanded, or anywhere when collapsed
+        if (!sidebar.classList.contains('collapsed') && !e.target.closest('#sidebar-drag-handle')) {
+            return;
+        }
+        if (e.target.closest('#sidebar-toggle')) return;
+
+        isDragging = true;
+        hasMoved = false;
+        sidebar.classList.add('dragging');
+
+        const rect = sidebar.getBoundingClientRect();
+
+        if (e.type === 'touchstart') {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+        } else {
+            startX = e.clientX;
+            startY = e.clientY;
+        }
+
+        // Calculate offset from mouse position to element top-left corner
+        offsetX = startX - rect.left;
+        offsetY = startY - rect.top;
+
+        e.preventDefault();
+    };
+
+    const doDrag = (e) => {
+        if (!isDragging) return;
+
+        let clientX, clientY;
+        if (e.type === 'touchmove') {
+            clientX = e.touches[0].clientX;
+            clientY = e.touches[0].clientY;
+        } else {
+            clientX = e.clientX;
+            clientY = e.clientY;
+        }
+
+        // Check if moved enough to count as drag
+        if (Math.abs(clientX - startX) > 3 || Math.abs(clientY - startY) > 3) {
+            hasMoved = true;
+        }
+
+        // Calculate new position based on mouse position minus initial offset
+        let newLeft = clientX - offsetX;
+        let newTop = clientY - offsetY;
+
+        // Boundary constraints
+        const maxLeft = window.innerWidth - sidebar.offsetWidth;
+        const maxTop = window.innerHeight - sidebar.offsetHeight;
+
+        newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+        newTop = Math.max(0, Math.min(newTop, maxTop));
+
+        sidebar.style.right = 'auto';
+        sidebar.style.left = newLeft + 'px';
+        sidebar.style.top = newTop + 'px';
+
+        e.preventDefault();
+    };
+
+    const endDrag = () => {
+        if (!isDragging) return;
+        isDragging = false;
+        sidebar.classList.remove('dragging');
+
+        // If we actually moved, set flag to prevent click expansion
+        if (hasMoved) {
+            justDragged = true;
+            // Reset after a short delay to allow future clicks
+            setTimeout(() => { justDragged = false; }, 100);
+        }
+
+        // Save position
+        const rect = sidebar.getBoundingClientRect();
+        localStorage.setItem('sidebar_position', JSON.stringify({
+            left: rect.left,
+            top: rect.top
+        }));
+    };
+
+    // Mouse events
+    dragHandle.addEventListener('mousedown', startDrag);
+    sidebar.addEventListener('mousedown', (e) => {
+        if (sidebar.classList.contains('collapsed')) startDrag(e);
+    });
+    document.addEventListener('mousemove', doDrag);
+    document.addEventListener('mouseup', endDrag);
+
+    // Touch events
+    dragHandle.addEventListener('touchstart', startDrag, { passive: false });
+    sidebar.addEventListener('touchstart', (e) => {
+        if (sidebar.classList.contains('collapsed')) startDrag(e);
+    }, { passive: false });
+    document.addEventListener('touchmove', doDrag, { passive: false });
+    document.addEventListener('touchend', endDrag);
+
+    // Handle window resize - keep sidebar within bounds
+    const keepInBounds = () => {
+        // Skip if sidebar is not visible (e.g., on login page)
+        if (sidebar.offsetWidth === 0 || sidebar.offsetHeight === 0) {
+            return;
+        }
+
+        // Get the original saved position
+        const savedPos = localStorage.getItem('sidebar_position');
+        let targetLeft, targetTop;
+
+        if (savedPos) {
+            try {
+                const pos = JSON.parse(savedPos);
+                targetLeft = pos.left;
+                targetTop = pos.top;
+            } catch (e) {
+                // No valid saved position, use CSS default (right: 20px)
+                return;
+            }
+        } else {
+            // No saved position, let CSS handle default positioning
+            return;
+        }
+
+        const maxLeft = window.innerWidth - sidebar.offsetWidth;
+        const maxTop = window.innerHeight - sidebar.offsetHeight;
+
+        // Clamp position to current window bounds
+        const newLeft = Math.max(0, Math.min(targetLeft, maxLeft));
+        const newTop = Math.max(0, Math.min(targetTop, maxTop));
+
+        sidebar.style.right = 'auto';
+        sidebar.style.left = newLeft + 'px';
+        sidebar.style.top = newTop + 'px';
+
+        // DO NOT save - keep original position in localStorage
+    };
+
+    window.addEventListener('resize', keepInBounds);
+
+    // Check bounds on initial load only if there's a saved position
+    if (localStorage.getItem('sidebar_position')) {
+        setTimeout(keepInBounds, 100);
+    }
+}
+
+// --- Donate Sidebar Toggle & Drag (PC Only) ---
+function initDonateSidebar() {
+    const sidebar = document.getElementById('donate-sidebar');
+    const toggleBtn = document.getElementById('donate-toggle');
+    const dragHandle = document.getElementById('donate-drag-handle');
+
+    if (!sidebar || !toggleBtn) return;
+
+    // Restore collapsed state
+    if (localStorage.getItem('donate_collapsed') === 'true') {
+        sidebar.classList.add('collapsed');
+    }
+
+    // Restore position
+    const savedPos = localStorage.getItem('donate_position');
+    if (savedPos) {
+        try {
+            const pos = JSON.parse(savedPos);
+            sidebar.style.left = pos.left + 'px';
+            sidebar.style.top = pos.top + 'px';
+        } catch (e) { }
+    }
+
+    // Toggle
+    toggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        sidebar.classList.add('collapsed');
+        localStorage.setItem('donate_collapsed', 'true');
+    });
+
+    let justDragged = false;
+    sidebar.addEventListener('click', (e) => {
+        if (justDragged) { justDragged = false; return; }
+        if (sidebar.classList.contains('collapsed')) {
+            sidebar.classList.remove('collapsed');
+            localStorage.setItem('donate_collapsed', 'false');
+        }
+    });
+
+    // Drag
+    let isDragging = false, hasMoved = false, startX, startY, offsetX, offsetY;
+
+    const startDrag = (e) => {
+        if (!sidebar.classList.contains('collapsed') && !e.target.closest('#donate-drag-handle')) return;
+        if (e.target.closest('#donate-toggle')) return;
+        isDragging = true; hasMoved = false;
+        sidebar.classList.add('dragging');
+        const rect = sidebar.getBoundingClientRect();
+        const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+        startX = clientX; startY = clientY;
+        offsetX = clientX - rect.left; offsetY = clientY - rect.top;
+        e.preventDefault();
+    };
+
+    const doDrag = (e) => {
+        if (!isDragging) return;
+        const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+        if (Math.abs(clientX - startX) > 3 || Math.abs(clientY - startY) > 3) hasMoved = true;
+        let newLeft = Math.max(0, Math.min(clientX - offsetX, window.innerWidth - sidebar.offsetWidth));
+        let newTop = Math.max(0, Math.min(clientY - offsetY, window.innerHeight - sidebar.offsetHeight));
+        sidebar.style.left = newLeft + 'px';
+        sidebar.style.top = newTop + 'px';
+        e.preventDefault();
+    };
+
+    const endDrag = () => {
+        if (!isDragging) return;
+        isDragging = false;
+        sidebar.classList.remove('dragging');
+        if (hasMoved) { justDragged = true; setTimeout(() => justDragged = false, 100); }
+        const rect = sidebar.getBoundingClientRect();
+        localStorage.setItem('donate_position', JSON.stringify({ left: rect.left, top: rect.top }));
+    };
+
+    dragHandle.addEventListener('mousedown', startDrag);
+    sidebar.addEventListener('mousedown', (e) => { if (sidebar.classList.contains('collapsed')) startDrag(e); });
+    document.addEventListener('mousemove', doDrag);
+    document.addEventListener('mouseup', endDrag);
+    dragHandle.addEventListener('touchstart', startDrag, { passive: false });
+    sidebar.addEventListener('touchstart', (e) => { if (sidebar.classList.contains('collapsed')) startDrag(e); }, { passive: false });
+    document.addEventListener('touchmove', doDrag, { passive: false });
+    document.addEventListener('touchend', endDrag);
+
+    // Keep in bounds on resize
+    window.addEventListener('resize', () => {
+        if (sidebar.offsetWidth === 0) return;
+        const pos = localStorage.getItem('donate_position');
+        if (!pos) return;
+        try {
+            const { left, top } = JSON.parse(pos);
+            const maxLeft = window.innerWidth - sidebar.offsetWidth;
+            const maxTop = window.innerHeight - sidebar.offsetHeight;
+            sidebar.style.left = Math.max(0, Math.min(left, maxLeft)) + 'px';
+            sidebar.style.top = Math.max(0, Math.min(top, maxTop)) + 'px';
+        } catch (e) { }
+    });
+}
+
+// Initialize sidebars after DOM ready
+document.addEventListener('DOMContentLoaded', () => {
+    initSidebar();
+    initDonateSidebar();
+});
 
 init();
 
